@@ -123,7 +123,7 @@ const Index = () => {
                 </div>
               </CardHeader>
               <CardContent>
-                <CardTitle className="text-neon-cyan neon-text mb-2">{car.name}</CardTitle>
+                <CardTitle className="text-neon-cyan mb-2">{car.name}</CardTitle>
                 <CardDescription className="text-gray-300 mb-4">
                   Скорость: {car.speed}/100
                 </CardDescription>
