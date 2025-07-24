@@ -3,6 +3,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Icon from '@/components/ui/icon';
 
 interface Car {
@@ -51,8 +54,17 @@ const Index = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Все');
   const [selectedCar, setSelectedCar] = useState<Car | null>(null);
+  const [carsList, setCarsList] = useState<Car[]>(cars);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [newCar, setNewCar] = useState({
+    name: '',
+    category: '',
+    speed: 0,
+    price: '',
+    image: ''
+  });
 
-  const filteredCars = cars.filter(car => {
+  const filteredCars = carsList.filter(car => {
     const matchesSearch = car.name.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === 'Все' || car.category === selectedCategory;
     return matchesSearch && matchesCategory;
@@ -73,6 +85,114 @@ const Index = () => {
       <div className="container mx-auto px-4 py-8">
         {/* Search and Filters */}
         <div className="mb-8 space-y-4">
+          <div className="flex justify-between items-center">
+            <h2 className="text-xl font-cyber text-neon-cyan">Поиск и фильтры</h2>
+            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="bg-neon-green text-cyberpunk-dark hover:bg-neon-green/80 transition-colors">
+                  <Icon name="Plus" className="w-4 h-4 mr-2" />
+                  Добавить авто
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="bg-cyberpunk-gray border-neon-cyan neon-border text-white max-w-md">
+                <DialogHeader>
+                  <DialogTitle className="text-neon-cyan font-cyber">Добавить новый автомобиль</DialogTitle>
+                  <DialogDescription className="text-gray-400">
+                    Заполните информацию о новом автомобиле
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  <div>
+                    <Label htmlFor="name" className="text-sm text-gray-300">Название</Label>
+                    <Input
+                      id="name"
+                      value={newCar.name}
+                      onChange={(e) => setNewCar({...newCar, name: e.target.value})}
+                      className="bg-cyberpunk-dark border-neon-cyan/30 text-white mt-1"
+                      placeholder="Pegassi Zentorno"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="category" className="text-sm text-gray-300">Категория</Label>
+                    <Select value={newCar.category} onValueChange={(value) => setNewCar({...newCar, category: value})}>
+                      <SelectTrigger className="bg-cyberpunk-dark border-neon-cyan/30 text-white mt-1">
+                        <SelectValue placeholder="Выберите категорию" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-cyberpunk-gray border-neon-cyan/30">
+                        <SelectItem value="Super">Super</SelectItem>
+                        <SelectItem value="Sports">Sports</SelectItem>
+                        <SelectItem value="Motorcycles">Motorcycles</SelectItem>
+                        <SelectItem value="Off-Road">Off-Road</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="speed" className="text-sm text-gray-300">Максимальная скорость</Label>
+                    <Input
+                      id="speed"
+                      type="number"
+                      value={newCar.speed}
+                      onChange={(e) => setNewCar({...newCar, speed: parseInt(e.target.value) || 0})}
+                      className="bg-cyberpunk-dark border-neon-cyan/30 text-white mt-1"
+                      placeholder="95"
+                      min="0"
+                      max="100"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="price" className="text-sm text-gray-300">Цена</Label>
+                    <Input
+                      id="price"
+                      value={newCar.price}
+                      onChange={(e) => setNewCar({...newCar, price: e.target.value})}
+                      className="bg-cyberpunk-dark border-neon-cyan/30 text-white mt-1"
+                      placeholder="$725,000"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="image" className="text-sm text-gray-300">URL изображения</Label>
+                    <Input
+                      id="image"
+                      value={newCar.image}
+                      onChange={(e) => setNewCar({...newCar, image: e.target.value})}
+                      className="bg-cyberpunk-dark border-neon-cyan/30 text-white mt-1"
+                      placeholder="https://example.com/car.jpg"
+                    />
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setIsAddDialogOpen(false)}
+                    className="flex-1 border-gray-600 text-gray-300 hover:bg-gray-800"
+                  >
+                    Отмена
+                  </Button>
+                  <Button 
+                    onClick={() => {
+                      if (newCar.name && newCar.category && newCar.price) {
+                        const newCarWithId: Car = {
+                          id: carsList.length + 1,
+                          name: newCar.name,
+                          category: newCar.category,
+                          speed: newCar.speed,
+                          price: newCar.price,
+                          image: newCar.image || '/placeholder.svg',
+                          screenshots: [newCar.image || '/placeholder.svg']
+                        };
+                        setCarsList([...carsList, newCarWithId]);
+                        setNewCar({ name: '', category: '', speed: 0, price: '', image: '' });
+                        setIsAddDialogOpen(false);
+                      }
+                    }}
+                    className="flex-1 bg-neon-cyan text-cyberpunk-dark hover:bg-neon-cyan/80"
+                  >
+                    Добавить
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
           <div className="relative">
             <Icon name="Search" className="absolute left-3 top-3 h-4 w-4 text-neon-cyan" />
             <Input
@@ -201,7 +321,7 @@ const Index = () => {
           <Card className="bg-cyberpunk-gray border-neon-cyan/30 neon-border text-center">
             <CardContent className="pt-6">
               <div className="text-3xl font-cyber font-bold text-neon-cyan neon-text">
-                {cars.length}
+                {carsList.length}
               </div>
               <p className="text-gray-400">Автомобилей в каталоге</p>
             </CardContent>
